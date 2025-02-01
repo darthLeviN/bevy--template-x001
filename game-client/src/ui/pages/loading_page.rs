@@ -40,7 +40,7 @@ fn loading_page(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
     new_world.spawn(
         (Text::new("Loading..."),
          LoadingPageTimer {
-             timer: Timer::new(Duration::from_secs(5), TimerMode::Once)
+             timer: Timer::new(Duration::from_secs(1), TimerMode::Once)
          }
         ),
     );

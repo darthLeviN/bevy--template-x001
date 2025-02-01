@@ -1,5 +1,19 @@
+pub mod unique_entity_ref;
+
 use std::process::Command;
 use bevy::prelude::*;
+use crate::context_system::unique_entity_ref::UniqueEntityRefPlugin;
+
+pub struct ContextSystemPlugin;
+
+impl Plugin for ContextSystemPlugin {
+    fn build(&self, app: &mut App) {
+        app
+            .add_plugins(
+                UniqueEntityRefPlugin,
+            );
+    }
+}
 
 pub trait ContextCommands
 {

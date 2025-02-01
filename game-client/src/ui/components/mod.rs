@@ -1,4 +1,20 @@
+pub mod interaction_style;
+
 use bevy::prelude::*;
+use crate::ui::components::interaction_style::InteractionStylePlugin;
+
+pub struct ComponentsPlugin;
+
+impl Plugin for ComponentsPlugin {
+    fn build(&self, app: &mut App) {
+        app.
+            add_plugins(
+                (
+                InteractionStylePlugin,
+                )
+            );
+    }
+}
 
 pub const FULL_SIZE_NODE: Node = Node {
     width: Val::Percent(100.0),

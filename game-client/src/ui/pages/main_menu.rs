@@ -1,7 +1,9 @@
-use bevy::color::palettes::basic::BLUE;
+use bevy::color::palettes::basic::*;
 use bevy::ecs::system::RunSystemOnce;
 use bevy::prelude::*;
+use crate::context_system::unique_entity_ref::UniqueEntity;
 use crate::scene_system::{GenericUiSceneCreator, InstantSpawnState, SpawnState, UiSceneCreatorFn};
+use crate::ui::components::interaction_style::{InteractionNodeStyle, NodeStyleBundle};
 
 pub struct MainMenuPagePlugin;
 
@@ -21,12 +23,74 @@ pub struct DummyCmp;
 fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
     let mut world = World::new();
 
-    world.spawn((Node {
-        width: Val::Percent(100.0),
-        height: Val::Percent(100.0),
-        justify_content: JustifyContent::SpaceBetween,
-        ..default()
-    }, BackgroundColor(BLUE.into())));
+    // Button v container
+    let vbox = (
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            flex_direction: FlexDirection::Column,
+            // justify_content: JustifyContent::End,
+            align_items: AlignItems::End,
+            padding: UiRect { left: Val::Px(10.0), top: Val::Px(10.0), right: Val::Px(10.0), bottom: Val::Px(10.0)},
+            row_gap: Val::Px(5.0),
+            ..default()
+        },
+        BackgroundColor(BLACK.into()),
+    );
+
+    world.spawn(vbox)
+        .with_children( |mut parent| {
+            let next_game_button_styles = InteractionNodeStyle {
+                default_style : NodeStyleBundle {
+                    background_color: BackgroundColor(BLUE.into()),
+                    border_radius: BorderRadius::all(Val::Px(10.0)),
+                    border_color: BorderColor(WHITE.into()),
+                    ..default()
+                },
+                hover_style : Some(NodeStyleBundle {
+                    background_color: BackgroundColor(YELLOW.into()),
+                    border_radius: BorderRadius::all(Val::Px(10.0)),
+                    text_color: TextColor(BLACK.into()),
+                    ..default()
+                }),
+                ..default()
+            };
+            let mut new_game_button = (
+                Button,
+                next_game_button_styles,
+                Node {
+                    padding: UiRect::all(Val::Px(4.0)),
+                    border: UiRect::all(Val::Px(1.0)),
+                    ..default()
+                },
+            );
+
+            let text = (
+                Text::from("New Game"),
+                UniqueEntity { tag: "text" },
+            );
+
+            let mut new_game_text_entity: Option<Entity> = None;
+
+            let mut new_game_button_entity = parent.spawn(
+                new_game_button.clone()
+            )
+                .with_children(|mut parent| {
+                    parent.spawn(text.clone());
+                });
+
+            parent.spawn(new_game_button.clone())
+                .with_children(|mut parent| {
+                    parent.spawn(text.clone());
+                });
+        });
+
+    // world.spawn((Node {
+    //     width: Val::Percent(100.0),
+    //     height: Val::Percent(100.0),
+    //     justify_content: JustifyContent::SpaceBetween,
+    //     ..default()
+    // }, );
 
     return Ok(GenericUiSceneCreator {
         path: "main_menu_page".into(),
