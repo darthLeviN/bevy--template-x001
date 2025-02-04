@@ -38,6 +38,7 @@ fn unique_entity_ref_system(
     query: Query<(Entity, &UniqueEntity, Option<&Parent>, Option<&UniqueEntityParentRef>), Changed<Parent>>) {
     let mut update: Vec<(Entity, &'static str, Option<Entity>, Option<Entity>)> =
         query.iter().map(|(entity, unique_entity, parent, prev_parent)| {
+            println!("FUCK {}", unique_entity.tag);
             (
                 entity,
                 unique_entity.tag,

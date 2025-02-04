@@ -1,3 +1,4 @@
+use bevy::picking::focus::PickingInteraction;
 use bevy::prelude::*;
 use crate::context_system::unique_entity_ref::UniqueEntityRefs;
 
@@ -8,7 +9,9 @@ impl Plugin for InteractionStylePlugin {
         app
             .add_systems(
             Update,
-            interaction_node_style_system
+            (
+                interaction_node_style_system,
+            )
         ).
             register_type::<InteractionNodeStyle>()
         ;
@@ -32,12 +35,15 @@ pub struct InteractionNodeStyle {
     pub pressed_style: Option<NodeStyleBundle>,
 }
 
+
 fn interaction_node_style_system(
     mut commands: Commands,
     mut query: Query<
-        (Entity, &InteractionNodeStyle, &Interaction, &InteractionNodeStyle, Option<&Children>, Option<&UniqueEntityRefs>),
-        Or<(Changed<Interaction>, Changed<UniqueEntityRefs>)>,>) {
+        (Entity, &InteractionNodeStyle, Option<&PickingInteraction>, &InteractionNodeStyle, Option<&Children>, Option<&UniqueEntityRefs>),
+        Or<(Changed<PickingInteraction>, Changed<UniqueEntityRefs>)>,>) {
     for (entity, style, interaction, styles, children, unique_refs) in query.iter_mut() {
+        let interaction = if let Some(interaction) = interaction { interaction } else { &PickingInteraction::None };
+        println!("Interaction style system");
         if let Some(unique_refs) = unique_refs {
             // Redundant change.
             if !unique_refs.changed.contains("text") {
@@ -46,13 +52,13 @@ fn interaction_node_style_system(
         }
 
         let final_style = match(interaction) {
-            Interaction::None => {
+            PickingInteraction::None => {
                 styles.default_style.clone()
             }
-            Interaction::Hovered => {
+            PickingInteraction::Hovered => {
                 styles.hover_style.clone().unwrap_or(styles.default_style.clone())
             }
-            Interaction::Pressed => {
+            PickingInteraction::Pressed => {
                 styles.pressed_style.clone().unwrap_or(styles.default_style.clone())
             }
         };

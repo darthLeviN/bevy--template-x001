@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use crate::scene_system::{GenericSceneCreator, GenericUiSceneCreator, InstantSpawnState, SceneCreatorFn, SceneMap, SpawnState, UiSceneCreatorFn};
-use crate::ui::ui_navigation::UiNavigation;
+use crate::ui::ui_navigation::{UiNavigationEvent, UiNavigation};
 use anyhow::Result;
 use anyhow::Error;
 use bevy::color::palettes::basic::*;
@@ -25,7 +25,11 @@ fn main_pages_navigation(base_world: &mut World) -> Result<GenericUiSceneCreator
     nav.pages.insert("loading".to_string(),loading_scene.clone());
     nav.next_path = Some(vec!["loading".to_string()]);
 
-    world.spawn((nav, FULL_SIZE_NODE.clone(), BackgroundColor(BLACK.into())));
+    world.spawn(
+        (nav,
+         FULL_SIZE_NODE.clone(),
+         BackgroundColor(BLACK.into()),
+        ));
 
     return Ok(GenericUiSceneCreator {
         path: "main_pages".into(),

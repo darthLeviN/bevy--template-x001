@@ -65,32 +65,28 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
                 },
             );
 
-            let text = (
+            let new_game_text = (
                 Text::from("New Game"),
                 UniqueEntity { tag: "text" },
+                PickingBehavior::IGNORE
             );
 
-            let mut new_game_text_entity: Option<Entity> = None;
+            let options_text = (
+                Text::from("Options"),
+                UniqueEntity { tag: "text" },
+                PickingBehavior::IGNORE
+            );
 
-            let mut new_game_button_entity = parent.spawn(
-                new_game_button.clone()
-            )
+            parent.spawn(new_game_button.clone())
                 .with_children(|mut parent| {
-                    parent.spawn(text.clone());
+                    parent.spawn(new_game_text.clone());
                 });
 
             parent.spawn(new_game_button.clone())
                 .with_children(|mut parent| {
-                    parent.spawn(text.clone());
+                    parent.spawn(options_text.clone());
                 });
         });
-
-    // world.spawn((Node {
-    //     width: Val::Percent(100.0),
-    //     height: Val::Percent(100.0),
-    //     justify_content: JustifyContent::SpaceBetween,
-    //     ..default()
-    // }, );
 
     return Ok(GenericUiSceneCreator {
         path: "main_menu_page".into(),

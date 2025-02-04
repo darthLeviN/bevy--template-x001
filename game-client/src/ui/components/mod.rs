@@ -1,4 +1,5 @@
 pub mod interaction_style;
+mod interaction_events;
 
 use bevy::prelude::*;
 use crate::ui::components::interaction_style::InteractionStylePlugin;

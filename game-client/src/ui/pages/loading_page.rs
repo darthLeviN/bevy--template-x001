@@ -4,7 +4,7 @@ use bevy::ecs::system::RunSystemOnce;
 use bevy::prelude::*;
 use crate::context_system::ContextCommands;
 use crate::scene_system::{GenericUiSceneCreator, InstantSpawnState, SpawnState, UiSceneCreatorFn};
-use crate::ui::ui_navigation::UiNavigation;
+use crate::ui::ui_navigation::{UiNavigationEvent, UiNavigation};
 
 pub struct LoadingPagePlugin;
 
@@ -26,10 +26,11 @@ fn loading_page_timer_system(mut commands: Commands,time: Res<Time>, mut query: 
     for (entity, mut timer) in query.iter_mut() {
         timer.timer.tick(time.delta());
         if timer.timer.times_finished_this_tick() > 0 {
-            commands.modify_context(entity, |nav: &mut UiNavigation| {
-                println!("Loading finished");
-                nav.next_path = Some(Vec::new());
-            });
+            // commands.modify_context(entity, |nav: &mut UiNavigation| {
+            //     println!("Loading finished");
+            //     nav.next_path = Some(Vec::new());
+            // });
+            commands.trigger_targets(UiNavigationEvent::SetPath(Vec::new()), entity);
         }
     }
 }
