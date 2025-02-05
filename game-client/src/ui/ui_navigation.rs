@@ -48,6 +48,8 @@ fn ui_navigation_change_system(mut commands: Commands, mut navs: Query<(Entity, 
         if let Some(next_path) = nav.next_path.take() {
             let prev_page_path = nav.path.last();
 
+            info!("Changing page path of Entity :{:?} to /{}", entity, next_path.join("/"));
+
             let next_page_path = next_path.last();
 
             if prev_page_path != next_page_path {
@@ -70,6 +72,7 @@ fn ui_navigation_change_system(mut commands: Commands, mut navs: Query<(Entity, 
                 }
             }
 
+            // TODO : Add a default page to show invalidation.
             let next_page_system =
                 next_page_path
                     .and_then(|next| nav.pages.get(next))
@@ -103,14 +106,17 @@ pub struct PageNavigationPlugin;
 impl Plugin for PageNavigationPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<UiNavigation>();
+        app.register_type::<UiNavigationEvent>();
         app.add_systems(PostUpdate, (
             ui_navigation_change_system,
             ui_navigation_spawn_system.before(ui_navigation_change_system),
         ));
+        app.add_observer(ui_navigation_button_observer);
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Clone, Debug, Reflect)]
+#[reflect(Component)]
 pub enum UiNavigationEvent {
     AppendPath(Vec<String>),
     PopPath(usize),
@@ -148,5 +154,16 @@ fn ui_navigation_event_observer(mut trigger: Trigger<UiNavigationEvent>, mut nav
         }
         trigger.propagate(false);
     }
+}
 
+fn ui_navigation_button_observer(mut trigger: Trigger<Pointer<Click>>, mut commands: Commands, query: Query<(Entity, &UiNavigationEvent)>) {
+    let entity = trigger.entity();
+    info!("Navigation button click detected : {:?}", entity);
+    if let Ok((entity, navigation_event)) = query.get(entity) {
+        info!("Navigation button click detected : {:?}", navigation_event);
+
+        commands.trigger_targets(navigation_event.clone(), entity);
+    }
+
+    trigger.propagate(false);
 }

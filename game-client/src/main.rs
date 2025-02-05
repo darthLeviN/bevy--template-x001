@@ -33,4 +33,12 @@ fn test_startup_plugin(mut commands: Commands, scene_map: Res<SceneMap>) {
     let empty_entity = commands.spawn_empty().id();
     observer.watch_entity(nav_id);
     commands.spawn(observer);
+
+    let tempworld = World::default();
+
 }
+
+// #[derive(Component, Reflect)]
+// struct TempStruct {
+//     pub a: fn()
+// }

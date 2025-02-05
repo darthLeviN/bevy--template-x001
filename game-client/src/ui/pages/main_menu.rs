@@ -4,6 +4,7 @@ use bevy::prelude::*;
 use crate::context_system::unique_entity_ref::UniqueEntity;
 use crate::scene_system::{GenericUiSceneCreator, InstantSpawnState, SpawnState, UiSceneCreatorFn};
 use crate::ui::components::interaction_style::{InteractionNodeStyle, NodeStyleBundle};
+use crate::ui::ui_navigation::UiNavigationEvent;
 
 pub struct MainMenuPagePlugin;
 
@@ -55,7 +56,7 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
                 }),
                 ..default()
             };
-            let mut new_game_button = (
+            let mut main_menu_button = (
                 Button,
                 next_game_button_styles,
                 Node {
@@ -68,7 +69,7 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
             let new_game_text = (
                 Text::from("New Game"),
                 UniqueEntity { tag: "text" },
-                PickingBehavior::IGNORE
+                PickingBehavior::IGNORE,
             );
 
             let options_text = (
@@ -77,12 +78,19 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
                 PickingBehavior::IGNORE
             );
 
-            parent.spawn(new_game_button.clone())
+            parent.spawn(
+                (
+                    main_menu_button.clone(),
+                    UiNavigationEvent::AppendPath(vec!["new_game".to_string()])
+                ))
                 .with_children(|mut parent| {
                     parent.spawn(new_game_text.clone());
                 });
 
-            parent.spawn(new_game_button.clone())
+            parent.spawn((
+                main_menu_button.clone(),
+                UiNavigationEvent::AppendPath(vec!["options".to_string()])
+            ))
                 .with_children(|mut parent| {
                     parent.spawn(options_text.clone());
                 });

@@ -43,7 +43,6 @@ fn interaction_node_style_system(
         Or<(Changed<PickingInteraction>, Changed<UniqueEntityRefs>)>,>) {
     for (entity, style, interaction, styles, children, unique_refs) in query.iter_mut() {
         let interaction = if let Some(interaction) = interaction { interaction } else { &PickingInteraction::None };
-        println!("Interaction style system");
         if let Some(unique_refs) = unique_refs {
             // Redundant change.
             if !unique_refs.changed.contains("text") {
@@ -64,8 +63,6 @@ fn interaction_node_style_system(
         };
 
         if let Some(text_entity) = unique_refs.and_then(|unique_refs| unique_refs.refs.get("text")) {
-            println!("Text entity: {}", text_entity);
-            println!("Text children {}", children.unwrap()[0]);
             commands.entity(*text_entity).insert(final_style.text_color.clone());
         }
 
