@@ -9,6 +9,7 @@ impl Plugin for UiPlugin {
             .add_plugins(crate::ui::pages::PagesPlugin)
             .add_plugins(crate::ui::page_navigations::PageNavigationsPlugin)
             .add_plugins(crate::ui::components::ComponentsPlugin)
-            .add_plugins(crate::context_system::ContextSystemPlugin);
+            .add_plugins(crate::context_system::ContextSystemPlugin)
+            .add_plugins(crate::ui::input::InputPlugin);
     }
 }

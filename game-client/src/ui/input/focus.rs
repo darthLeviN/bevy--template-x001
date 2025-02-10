@@ -3,16 +3,22 @@ use bevy::prelude::*;
 use bevy::ui::FocusPolicy;
 use bevy::ui::UiSystem::Focus;
 use bevy::utils::tracing::event;
+use crate::ui::input::input_map::{InputValue, MappedInputEvent};
 
 pub struct UiFocusPlugin;
 
 impl Plugin for UiFocusPlugin {
     fn build(&self, app: &mut App) {
+        app.add_observer(click_focus_change_observer);
+        app.register_system(focus_release_system);
+        app.register_type::<InputFocusPolicy>();
+        app.insert_resource(InputFocus(None));
     }
 }
 
 
-#[derive(Component, Clone, Debug)]
+#[derive(Component, Clone, Debug, Reflect)]
+#[reflect(Component)]
 pub enum InputFocusPolicy {
     None,
     All
@@ -32,13 +38,24 @@ pub struct InputFocus(pub Option<Entity>);
 pub fn click_focus_change_observer(mut trigger: Trigger<Pointer<Click>>, query: Query<Entity>, mut input_focus: ResMut<InputFocus>) {
     let trigger_entity = trigger.entity();
     if let Ok((entity)) = query.get(trigger_entity) {
+        info!("Focus changed to: {:?}", entity);
         input_focus.0 = Some(entity);
     }
 }
-
-
 //
-pub fn focus_release_policy(world: &mut World) {
+// pub fn default_focus_inputs(
+//     mut trigger: Trigger<MappedInputEvent>,
+//     input_focus: ResMut<InputFocus>,
+//     mut event_writer: EventWriter<ReleaseFocusEvent>) {
+//     if let Some(entity) = input_focus.0 {
+//         if trigger.entity() == entity {
+//             event_writer.send(ReleaseFocusEvent::ToParent{entity, allow_none: true});
+//         }
+//     }
+// }
+
+
+pub fn focus_release_system(world: &mut World) {
     let mut events: Vec<ReleaseFocusEvent> = Vec::new();
     let mut event_reader = world.resource_mut::<Events<ReleaseFocusEvent>>();
     let mut events_cursor = event_reader.get_cursor();

@@ -26,13 +26,20 @@ fn test_startup_plugin(mut commands: Commands, scene_map: Res<SceneMap>) {
 
     let main_pages = scene_map.scenes.get("main_pages").unwrap();
     let mut observer = Observer::new(|trigger: Trigger<UiNavigationEvent>| {
-        println!("FUCK0");
+        println!("FUCK0: {:?}", trigger.entity());
     });
+
+    let mut observer2 = Observer::new(|trigger: Trigger<UiNavigationEvent>| {
+        println!("FUCK1: {:?}", trigger.entity());
+    });
+
+    commands.spawn(observer2);
 
     let nav_id = main_pages.clone().spawn_with_commands(&mut commands).id();//.insert(observer);
     let empty_entity = commands.spawn_empty().id();
     observer.watch_entity(nav_id);
     commands.spawn(observer);
+
 
     let tempworld = World::default();
 

@@ -31,7 +31,7 @@ fn ui_navigation_spawn_system(mut commands: Commands, mut navs: Query<(Entity, O
         if let Some(next_path) = nav.next_path.take() {
             nav.path = next_path;
         }
-        let current_page_system = nav.path.last().and_then(|path| nav.pages.get(path)).or_else(|| nav.root_page.as_ref());
+        let current_page_system = nav.path.last().map_or_else(|| nav.root_page.as_ref(), |path| nav.pages.get(path));
         if let Some(current_page_system) = current_page_system {
             current_page_system.clone().spawn_with_commands(&mut commands).set_parent_in_place(entity);
         } else {
@@ -75,11 +75,20 @@ fn ui_navigation_change_system(mut commands: Commands, mut navs: Query<(Entity, 
             // TODO : Add a default page to show invalidation.
             let next_page_system =
                 next_page_path
-                    .and_then(|next| nav.pages.get(next))
-                    .or_else(|| nav.root_page.as_ref());
+                    .map_or_else(|| nav.root_page.as_ref(), |path| nav.pages.get(path));
+                    // .and_then(|next| nav.pages.get(next))
+                    // .or_else(|| nav.root_page.as_ref());
 
             if let Some(next_page_system) = next_page_system {
                 next_page_system.clone().spawn_with_commands(&mut commands).set_parent_in_place(entity);
+            } else {
+                error!("Page not found!");
+                commands.spawn(
+                    (
+                        Text::from("Page not found!"),
+                        FULL_SIZE_NODE,
+                    )
+                );
             }
 
             nav.path = next_path;
@@ -129,6 +138,7 @@ impl Event for UiNavigationEvent {
 }
 
 fn ui_navigation_event_observer(mut trigger: Trigger<UiNavigationEvent>, mut navs: Query<&mut UiNavigation>) {
+
     if let Ok(mut ui_navigation) = navs.get_mut(trigger.observer()) {
         println!("Found entity");
         match trigger.event_mut() {

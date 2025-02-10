@@ -5,6 +5,8 @@ pub mod asset_util;
 pub mod context_system;
 pub mod components;
 
+pub mod event_system;
+
 use bevy::prelude::*;
 pub struct StartupPlugins;
 

@@ -4,6 +4,7 @@ use bevy::prelude::*;
 use crate::context_system::unique_entity_ref::UniqueEntity;
 use crate::scene_system::{GenericUiSceneCreator, InstantSpawnState, SpawnState, UiSceneCreatorFn};
 use crate::ui::components::interaction_style::{InteractionNodeStyle, NodeStyleBundle};
+use crate::ui::input::focus::InputFocusPolicy;
 use crate::ui::ui_navigation::UiNavigationEvent;
 
 pub struct MainMenuPagePlugin;
@@ -64,6 +65,7 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
                     border: UiRect::all(Val::Px(1.0)),
                     ..default()
                 },
+                InputFocusPolicy::All
             );
 
             let new_game_text = (
