@@ -26,11 +26,12 @@ fn test_startup_plugin(mut commands: Commands, scene_map: Res<SceneMap>) {
 
     let main_pages = scene_map.scenes.get("main_pages").unwrap();
     let mut observer = Observer::new(|trigger: Trigger<UiNavigationEvent>| {
-        println!("FUCK0: {:?}", trigger.entity());
+        // println!("FUCK0: {:?}", trigger.entity());
     });
 
-    let mut observer2 = Observer::new(|trigger: Trigger<UiNavigationEvent>| {
-        println!("FUCK1: {:?}", trigger.entity());
+    let mut observer2 = Observer::new(|trigger: Trigger<UiNavigationEvent>, query: Query<&Parent>| {
+        // println!("UI navigation event for entity: {:?} with parent {:?}", trigger.entity(), query.get(trigger.entity()));
+        // println!("Ancestors : {:?}", query.iter_ancestors(trigger.entity()).collect::<Vec<_>>());
     });
 
     commands.spawn(observer2);
