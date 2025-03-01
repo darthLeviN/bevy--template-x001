@@ -11,6 +11,26 @@ use crate::event_system::UnhandledEventTriggerExt;
 use crate::ui::input::focus::InputFocusPolicy;
 use crate::ui::input::input_map::MappedInputEvent;
 
+
+pub struct PageNavigationPlugin;
+
+impl Plugin for PageNavigationPlugin {
+    fn build(&self, app: &mut App) {
+        app.register_type::<UiNavigation>();
+        app.register_type::<UiNavigationEvent>();
+
+        app.add_observer(ui_navigation_spawn_observer);
+        app.add_observer(ui_navigation_button_observer);
+        app.add_observer(ui_navigation_back_button_observer);
+
+        app.add_systems(PostUpdate, (
+            ui_navigation_change_system,
+        ));
+    }
+}
+
+
+
 #[derive(Component, Clone, Reflect, Default)]
 #[reflect(Component)]
 pub struct UiNavigation {
@@ -23,10 +43,9 @@ pub struct UiNavigation {
     pub current_scene_root: Option<Entity>
 }
 
-// type UiNavModifierFn = impl FnOnce(&mut UiNavigation) + Send + Sync;
-
-fn ui_navigation_spawn_system(mut commands: Commands, mut navs: Query<(Entity, Option<&Children>, &mut UiNavigation), Added<UiNavigation>>) {
-    for (entity, children, mut nav) in navs.iter_mut() {
+fn ui_navigation_spawn_observer(mut trigger: Trigger<OnAdd, UiNavigation>, mut commands: Commands, mut navs: Query<(Entity, Option<&Children>, &mut UiNavigation)>) {
+    let entity = trigger.entity();
+    if let  Ok((entity, children, mut nav)) = navs.get_mut(entity) {
         let mut observer = Observer::new(ui_navigation_event_observer);
         observer.watch_entity(entity);
         let mut entity_commands = commands.entity(entity);
@@ -197,21 +216,6 @@ impl UiNavigation {
                 self.next_path = Some(path);
             }
         }
-    }
-}
-
-pub struct PageNavigationPlugin;
-
-impl Plugin for PageNavigationPlugin {
-    fn build(&self, app: &mut App) {
-        app.register_type::<UiNavigation>();
-        app.register_type::<UiNavigationEvent>();
-        app.add_systems(PostUpdate, (
-            ui_navigation_change_system,
-            ui_navigation_spawn_system.before(ui_navigation_change_system),
-        ));
-        app.add_observer(ui_navigation_button_observer);
-        app.add_observer(ui_navigation_back_button_observer);
     }
 }
 
