@@ -21,11 +21,12 @@ impl Plugin for UiFocusPlugin {
 // TODO : add focus changed event and trigger.
 
 
-#[derive(Component, Clone, Debug, Reflect)]
+#[derive(Component, Clone, Debug, Reflect, PartialEq, Eq)]
 #[reflect(Component)]
 pub enum InputFocusPolicy {
     None,
-    All
+    All,
+    DISABLED
 }
 
 #[derive(Event, Clone, Debug)]
@@ -154,14 +155,14 @@ pub fn focus_release_system(world: &mut World) {
                     let current_child = *entity;
                     if let Some(policy) = world.get::<InputFocusPolicy>(current_child) {
                         match policy {
-                            InputFocusPolicy::None => {
-                                continue;
-                            }
                             InputFocusPolicy::All => {
                                 if world.set_next_input_focus(Some(current_child)).is_ok() {
                                     parent_focused = true;
                                     break;
                                 }
+                            }
+                            _ => {
+                            continue;
                             }
                         }
                     }

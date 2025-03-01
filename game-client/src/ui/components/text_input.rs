@@ -9,4 +9,6 @@ impl Plugin for TextInputPlugin {
 }
 
 
+#[derive(Component, Clone, Reflect, Default)]
 pub struct TextInput;
+
