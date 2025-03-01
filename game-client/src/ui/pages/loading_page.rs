@@ -1,10 +1,8 @@
 use std::time::Duration;
-use bevy::color::palettes::basic::*;
 use bevy::ecs::system::RunSystemOnce;
 use bevy::prelude::*;
-use crate::context_system::ContextCommands;
 use crate::scene_system::{GenericUiSceneCreator, InstantSpawnState, SpawnState, UiSceneCreatorFn};
-use crate::ui::ui_navigation::{UiNavigationEvent, UiNavigation};
+use crate::ui::ui_navigation::{UiNavigationEvent};
 
 pub struct LoadingPagePlugin;
 

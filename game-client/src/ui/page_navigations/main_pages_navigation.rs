@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use crate::scene_system::{GenericSceneCreator, GenericUiSceneCreator, InstantSpawnState, SceneCreatorFn, SceneMap, SpawnState, UiSceneCreatorFn};
-use crate::ui::ui_navigation::{UiNavigationEvent, UiNavigation};
+use crate::scene_system::{GenericUiSceneCreator, InstantSpawnState, SceneMap, SpawnState, UiSceneCreatorFn};
+use crate::ui::ui_navigation::{UiNavigation};
 use anyhow::Result;
 use anyhow::Error;
 use bevy::color::palettes::basic::*;
@@ -17,7 +17,7 @@ impl Plugin for MainPagesNavigationPlugin {
 
 fn main_pages_navigation(base_world: &mut World) -> Result<GenericUiSceneCreator> {
     let mut world = World::new();
-    let mut scene_map = base_world.resource_mut::<SceneMap>();
+    let scene_map = base_world.resource_mut::<SceneMap>();
     let main_menu_scene = scene_map.scenes.get("main_menu_page").ok_or(Error::msg("main_menu scene not found"))?;
     let loading_scene = scene_map.scenes.get("loading_page").ok_or(Error::msg("main_menu scene not found"))?;
     let mut nav = UiNavigation::default();

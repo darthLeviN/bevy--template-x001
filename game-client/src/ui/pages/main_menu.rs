@@ -15,9 +15,9 @@ impl Plugin for MainMenuPagePlugin {
     }
 }
 
-pub struct MainMenuPage {
-    scene: Scene,
-}
+// pub struct MainMenuPage {
+//     scene: Scene,
+// }
 
 #[derive(Component, Reflect, Default)]
 pub struct DummyCmp;
@@ -41,7 +41,7 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
     );
 
     world.spawn(vbox)
-        .with_children( |mut parent| {
+        .with_children( |parent| {
             let next_game_button_styles = InteractionNodeStyle {
                 default_style : NodeStyleBundle {
                     background_color: BackgroundColor(BLUE.into()),
@@ -57,7 +57,7 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
                 }),
                 ..default()
             };
-            let mut main_menu_button = (
+            let main_menu_button = (
                 Button,
                 next_game_button_styles,
                 Node {
@@ -85,7 +85,7 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
                     main_menu_button.clone(),
                     UiNavigationEvent::AppendPath(vec!["new_game".to_string()])
                 ))
-                .with_children(|mut parent| {
+                .with_children(|parent| {
                     parent.spawn(new_game_text.clone());
                 });
 
@@ -93,7 +93,7 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
                 main_menu_button.clone(),
                 UiNavigationEvent::AppendPath(vec!["options".to_string()])
             ))
-                .with_children(|mut parent| {
+                .with_children(|parent| {
                     parent.spawn(options_text.clone());
                 });
         });

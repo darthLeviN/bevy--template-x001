@@ -2,7 +2,6 @@ use std::collections::HashSet;
 use bevy::asset::{LoadState, UntypedAssetId};
 use bevy::prelude::*;
 use bevy::utils::HashMap;
-use maplit::hashmap;
 
 #[derive(Resource, Default)]
 pub struct LoadingStateGroups {
@@ -20,7 +19,7 @@ impl LoadingStateGroups {
 
     pub fn add_asset(&mut self, key: String, handle: UntypedHandle) {
         match self.groups.get_mut(&key) {
-            Some(mut group) => { group.insert(handle.id(), handle.clone()); }
+            Some(group) => { group.insert(handle.id(), handle.clone()); }
             None => _ = {
                 let mut hashmap = HashMap::<UntypedAssetId, UntypedHandle>::new();
                 hashmap.insert(handle.id(), handle.clone());
@@ -29,7 +28,7 @@ impl LoadingStateGroups {
         }
 
         match self.loading_states.get_mut(&handle.id()) {
-            Some(mut set) => {
+            Some(set) => {
                 set.insert(key);
             }
             None => {

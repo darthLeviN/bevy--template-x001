@@ -1,6 +1,5 @@
 pub mod unique_entity_ref;
 
-use std::process::Command;
 use bevy::prelude::*;
 use crate::context_system::unique_entity_ref::UniqueEntityRefPlugin;
 
@@ -44,7 +43,7 @@ impl<'w, 's> ContextCommands for Commands<'w, 's> {
                 match next_parent {
                     Some(next_parent) => {
                         let next_parent = next_parent.get();
-                        let mut nav = world.get_mut::<C>(next_parent.clone());
+                        let nav = world.get_mut::<C>(next_parent.clone());
                         match nav {
                             Some(mut nav) => {
                                 modifier_fn(&mut *nav);
@@ -71,7 +70,7 @@ impl<'w, 's> ContextCommands for Commands<'w, 's> {
                 match next_parent {
                     Some(next_parent) => {
                         let next_parent = next_parent.get();
-                        let mut nav = world.get_mut::<C>(next_parent.clone());
+                        let nav = world.get_mut::<C>(next_parent.clone());
                         match nav {
                             Some(mut nav) => {
                                 let ret = process_fn(next_parent, &mut *nav);

@@ -1,5 +1,4 @@
 use std::collections::{HashMap, HashSet};
-use bevy::asset::AssetContainer;
 use bevy::prelude::*;
 
 pub struct UniqueEntityRefPlugin;
@@ -36,7 +35,7 @@ pub struct UniqueEntityRefs {
 fn unique_entity_ref_system(
     mut commands: Commands,
     query: Query<(Entity, &UniqueEntity, Option<&Parent>, Option<&UniqueEntityParentRef>), Changed<Parent>>) {
-    let mut update: Vec<(Entity, &'static str, Option<Entity>, Option<Entity>)> =
+    let update: Vec<(Entity, &'static str, Option<Entity>, Option<Entity>)> =
         query.iter().map(|(entity, unique_entity, parent, prev_parent)| {
             (
                 entity,
@@ -48,7 +47,7 @@ fn unique_entity_ref_system(
 
     commands.queue(move |world: &mut World| {
         // Clear `changed` first.
-        for (entity, unique_entity, parent, prev_parent) in update.iter() {
+        for (entity, _, _, _) in update.iter() {
             if let Some(mut unique_refs) = world.entity_mut(*entity).get_mut::<UniqueEntityRefs>() {
                 unique_refs.changed.clear();
             }

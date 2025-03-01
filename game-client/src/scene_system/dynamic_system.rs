@@ -1,9 +1,9 @@
-use bevy::prelude::*;
+// use bevy::prelude::*;
 
 // Systems that can be used with Reflect and the scene system.
-pub trait DynamicSystem {
-    fn run(&self, world: &mut World);
-}
+// pub trait DynamicSystem {
+//     fn run(&self, world: &mut World);
+// }
 
 //
 // pub trait DynamicSystemRunner {

@@ -1,6 +1,4 @@
 use std::collections::{HashMap, HashSet};
-use std::ptr::hash;
-use bevy::ecs::system::RunSystemOnce;
 use bevy::input::ButtonState;
 use bevy::input::keyboard::{Key, KeyboardInput};
 use bevy::prelude::*;
@@ -203,8 +201,9 @@ pub fn managed_keyboard_input_system(
     input_maps: Res<InputMaps>) {
 
     for event in keyboard_input_events.read() {
-        if let Some(new_state) = key_states.set_state(event.key_code, event.state) {
-            info!("Key {:?} changed state from {:?} to {:?}", event.key_code, new_state, event.state);
+        if let Some(_) = key_states.set_state(event.key_code, event.state) {
+            // This isn't safe. Key logging might have sensitive data.
+            // debug!("Key {:?} changed state from {:?} to {:?}", event.key_code, new_state, event.state);
             let mut event = event.clone();
             event.window = Entity::PLACEHOLDER;
             if let Some(input_context) = input_maps.comparison_cache.get(&InputValue::Keyboard(event.clone())) {

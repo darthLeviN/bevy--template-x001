@@ -41,7 +41,7 @@ fn interaction_node_style_system(
     mut query: Query<
         (Entity, &InteractionNodeStyle, Option<&PickingInteraction>, &InteractionNodeStyle, Option<&Children>, Option<&UniqueEntityRefs>),
         Or<(Changed<PickingInteraction>, Changed<UniqueEntityRefs>)>,>) {
-    for (entity, style, interaction, styles, children, unique_refs) in query.iter_mut() {
+    for (entity, _, interaction, styles, _, unique_refs) in query.iter_mut() {
         let interaction = if let Some(interaction) = interaction { interaction } else { &PickingInteraction::None };
         if let Some(unique_refs) = unique_refs {
             // Redundant change.
@@ -50,7 +50,7 @@ fn interaction_node_style_system(
             }
         }
 
-        let final_style = match(interaction) {
+        let final_style = match interaction {
             PickingInteraction::None => {
                 styles.default_style.clone()
             }

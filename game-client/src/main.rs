@@ -1,10 +1,6 @@
-use anyhow::Error;
-use bevy::color::palettes::basic::{BLUE, WHITE};
 use bevy::prelude::*;
-use game_client::scene_system::{GenericScene, SceneMap};
+use game_client::scene_system::{SceneMap};
 use game_client::StartupPlugins;
-use game_client::ui::components::FULL_SIZE_NODE;
-use game_client::ui::ui_navigation::{UiNavigationEvent, UiNavigation};
 
 fn main() {
 
@@ -25,24 +21,21 @@ fn startup_camera(mut commands: Commands) {
 fn test_startup_plugin(mut commands: Commands, scene_map: Res<SceneMap>) {
 
     let main_pages = scene_map.scenes.get("main_pages").unwrap();
-    let mut observer = Observer::new(|trigger: Trigger<UiNavigationEvent>| {
-        // println!("FUCK0: {:?}", trigger.entity());
-    });
+    // let mut observer = Observer::new(|trigger: Trigger<UiNavigationEvent>| {
+    // });
+    //
+    // let mut observer2 = Observer::new(|trigger: Trigger<UiNavigationEvent>, query: Query<&Parent>| {
+    // });
 
-    let mut observer2 = Observer::new(|trigger: Trigger<UiNavigationEvent>, query: Query<&Parent>| {
-        // println!("UI navigation event for entity: {:?} with parent {:?}", trigger.entity(), query.get(trigger.entity()));
-        // println!("Ancestors : {:?}", query.iter_ancestors(trigger.entity()).collect::<Vec<_>>());
-    });
+    // commands.spawn(observer2);
 
-    commands.spawn(observer2);
-
-    let nav_id = main_pages.clone().spawn_with_commands(&mut commands).id();//.insert(observer);
-    let empty_entity = commands.spawn_empty().id();
-    observer.watch_entity(nav_id);
-    commands.spawn(observer);
+    _ = main_pages.clone().spawn_with_commands(&mut commands).id();//.insert(observer);
+    // let empty_entity = commands.spawn_empty().id();
+    // observer.watch_entity(nav_id);
+    // commands.spawn(observer);
 
 
-    let tempworld = World::default();
+    // let tempworld = World::default();
 
 }
 

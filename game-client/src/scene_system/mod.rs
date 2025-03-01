@@ -3,7 +3,6 @@ mod dynamic_system;
 use std::collections::HashMap;
 use bevy::prelude::*;
 use bevy::asset::Assets;
-use bevy::reflect::Typed;
 use crate::ui::components::FULL_SIZE_NODE;
 
 #[derive(Clone, Reflect)]
@@ -38,10 +37,10 @@ pub enum GenericScene {
 }
 
 impl GenericScene {
-    pub fn spawn_with_commands<'a>(self, mut commands: &'a mut Commands) -> EntityCommands<'a> {
+    pub fn spawn_with_commands<'a>(self, commands: &'a mut Commands) -> EntityCommands<'a> {
         match self {
             GenericScene::Scene(bundle) => {
-                commands.spawn((bundle))
+                commands.spawn(bundle)
             },
             GenericScene::DynamicScene(bundle) => {
                 commands.spawn(bundle)
@@ -81,25 +80,26 @@ pub struct DynamicUiSceneCreator {
 }
 
 pub trait SceneCreatorFn {
-    fn get_system(self) -> impl FnMut(&mut World);
+    fn get_system(self) -> impl FnMut(&mut World) + 'static;
 }
 
 pub trait UiSceneCreatorFn {
-    fn get_system(self) -> impl FnMut(&mut World);
+    fn get_system(self) -> impl FnMut(&mut World) + 'static;
 }
 
 pub trait DynamicSceneCreatorFn {
-    fn get_system(self) -> impl FnMut(&mut World);
+    fn get_system(self) -> impl FnMut(&mut World) + 'static;
 }
 
 pub trait DynamicUiSceneCreatorFn {
-    fn get_system(self) -> impl FnMut(&mut World);
+    fn get_system(self) -> impl FnMut(&mut World) + 'static;
 }
 
 impl<F> SceneCreatorFn for F
 where
     F: Fn(&mut World) -> anyhow::Result<GenericSceneCreator> + 'static,
 {
+    #[allow(refining_impl_trait)]
     fn get_system(self) -> impl FnMut(&mut World) + 'static {
         let scene_creator = self; // Move `self` into the closure
         move |world: &mut World| {
@@ -129,9 +129,10 @@ where
 
 impl<F> UiSceneCreatorFn for F
 where
-    F: Fn(&mut World) -> anyhow::Result<GenericUiSceneCreator>,
+    F: Fn(&mut World) -> anyhow::Result<GenericUiSceneCreator> + 'static,
 {
-    fn get_system(self) -> impl FnMut(&mut World) {
+    #[allow(refining_impl_trait)]
+    fn get_system(self) -> impl FnMut(&mut World) + 'static {
         let scene_creator = self; // Move `self` into the closure
         move |world: &mut World| {
             match scene_creator(world) {
@@ -162,6 +163,7 @@ impl<F> DynamicSceneCreatorFn for F
 where
     F: Fn(&mut World) -> anyhow::Result<DynamicSceneCreator> + 'static,
 {
+    #[allow(refining_impl_trait)]
     fn get_system(self) -> impl FnMut(&mut World) + 'static {
         let scene_creator = self; // Move `self` into the closure
         move |world: &mut World| {
@@ -193,6 +195,7 @@ impl<F> DynamicUiSceneCreatorFn for F
 where
     F: Fn(&mut World) -> anyhow::Result<DynamicUiSceneCreator> + 'static,
 {
+    #[allow(refining_impl_trait)]
     fn get_system(self) -> impl FnMut(&mut World) + 'static {
         let scene_creator = self; // Move `self` into the closure
         move |world: &mut World| {

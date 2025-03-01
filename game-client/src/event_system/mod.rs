@@ -1,12 +1,10 @@
 use std::fmt::Debug;
-use bevy::ecs::component::StorageType;
 use bevy::prelude::*;
-use crate::ui::input::input_map::MappedInputEvent;
 
 pub struct EventSystemPlugin;
 
 impl Plugin for EventSystemPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, _: &mut App) {
     }
 }
 
