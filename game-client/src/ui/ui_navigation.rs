@@ -1,10 +1,12 @@
 use std::collections::HashMap;
-use crate::scene_system::{GenericScene, SpawnState};
+use bevy::ecs::component::ComponentId;
+use crate::scene_system::{GenericScene, GenericSceneCommandsExt, SpawnState};
 use crate::ui::components::FULL_SIZE_NODE;
 use crate::event_system::UnhandledEventTriggerExt;
 use crate::ui::input::focus::InputFocusPolicy;
 use crate::ui::input::input_map::MappedInputEvent;
 use bevy::ecs::system::{RunSystemOnce};
+use bevy::ecs::world::DeferredWorld;
 use bevy::prelude::*;
 
 // Plugin definition
@@ -12,13 +14,19 @@ pub struct PageNavigationPlugin;
 
 impl Plugin for PageNavigationPlugin {
     fn build(&self, app: &mut App) {
+        // Types
         app.register_type::<UiNavigation>();
         app.register_type::<UiNavigationEvent>();
 
-        app.add_observer(ui_navigation_spawn_observer);
+        // Component hooks
+        app.world_mut().register_component_hooks::<UiNavigation>()
+            .on_add(ui_navigation_on_add);
+
+        // Observers
         app.add_observer(ui_navigation_button_observer);
         app.add_observer(ui_navigation_back_button_observer);
 
+        // Systems
         app.add_systems(PostUpdate, (ui_navigation_change_system,));
     }
 }
@@ -114,36 +122,40 @@ impl Event for UiNavigationEvent {
 }
 
 // Observers
-fn ui_navigation_spawn_observer(
-    trigger: Trigger<OnAdd, UiNavigation>,
-    mut commands: Commands,
-    mut navs: Query<(Entity, Option<&Children>, &mut UiNavigation)>,
+fn ui_navigation_on_add(
+    mut world: DeferredWorld,
+    entity: Entity,
+    component_id: ComponentId
 ) {
-    let entity = trigger.entity();
-    if let Ok((entity, _, mut nav)) = navs.get_mut(entity) {
-        let mut observer = Observer::new(ui_navigation_event_observer);
-        observer.watch_entity(entity);
-        let mut entity_commands = commands.entity(entity);
-        entity_commands.insert(observer);
-        entity_commands.insert(InputFocusPolicy::All);
+    let mut nav = world.get_mut::<UiNavigation>(entity).unwrap();
 
-        debug!("handling page navigation spawn");
-        if let Some(next_path) = nav.next_path.take() {
-            nav.path = next_path;
-        }
-        let current_page_system = nav
-            .path
-            .last()
-            .map_or_else(|| nav.root_page.as_ref(), |path| nav.pages.get(path));
-        if let Some(current_page_system) = current_page_system {
-            current_page_system
-                .clone()
-                .spawn_with_commands(&mut commands)
-                .set_parent_in_place(entity);
-        } else {
-            error!(?nav.path, "Page scene not found!");
-        }
+    debug!("handling page navigation spawn");
+    if let Some(next_path) = nav.next_path.take() {
+        nav.path = next_path;
     }
+
+    let current_page_system = nav
+        .path
+        .last()
+        .map_or_else(|| nav.root_page.as_ref(), |path| nav.pages.get(path));
+
+    let mut commands = if let Some(current_page_system) = current_page_system {
+        let system_clone = current_page_system.clone();
+        let mut commands= world.commands();
+        commands
+            .spawn_generic_scene(system_clone)
+            .set_parent_in_place(entity);
+        commands
+    } else {
+        error!(?nav.path, "Page scene not found!");
+        world.commands()
+    };
+
+    let mut entity_commands = commands.entity(entity);
+    let mut observer = Observer::new(ui_navigation_event_observer);
+    observer.watch_entity(entity);
+    entity_commands.insert(observer);
+    entity_commands.insert(InputFocusPolicy::All);
 }
 
 fn ui_navigation_change_system(

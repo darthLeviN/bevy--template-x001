@@ -53,6 +53,54 @@ impl GenericScene {
             }
         }
     }
+
+    // pub fn spawn_with_entity_commands<'a>(self, commands: &'a mut Entity)
+}
+
+pub trait GenericSceneEntityCommandsExt {
+    fn insert_generic_scene(&mut self, scene: GenericScene) -> &mut Self;
+}
+
+impl GenericSceneEntityCommandsExt for EntityCommands<'_> {
+    fn insert_generic_scene(&mut self, scene: GenericScene) -> &mut Self {
+        match scene {
+            GenericScene::Scene(bundle) => {
+                self.insert(bundle)
+            },
+            GenericScene::DynamicScene(bundle) => {
+                self.insert(bundle)
+            },
+            GenericScene::UiScene(bundle) => {
+                self.insert((bundle, FULL_SIZE_NODE.clone(), PickingBehavior::IGNORE))
+            },
+            GenericScene::DynamicUiScene(bundle) => {
+                self.insert((bundle, FULL_SIZE_NODE.clone(), PickingBehavior::IGNORE))
+            }
+        }
+    }
+}
+
+pub trait GenericSceneCommandsExt {
+    fn spawn_generic_scene(&mut self, scene: GenericScene) -> EntityCommands;
+}
+
+impl GenericSceneCommandsExt for Commands<'_,'_> {
+    fn spawn_generic_scene(&mut self, scene: GenericScene) -> EntityCommands {
+        match scene {
+            GenericScene::Scene(bundle) => {
+                self.spawn(bundle)
+            },
+            GenericScene::DynamicScene(bundle) => {
+                self.spawn(bundle)
+            },
+            GenericScene::UiScene(bundle) => {
+                self.spawn((bundle, FULL_SIZE_NODE.clone(), PickingBehavior::IGNORE))
+            },
+            GenericScene::DynamicUiScene(bundle) => {
+                self.spawn((bundle, FULL_SIZE_NODE.clone(), PickingBehavior::IGNORE))
+            }
+        }
+    }
 }
 
 pub struct GenericSceneCreator {
