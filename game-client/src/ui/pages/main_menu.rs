@@ -3,7 +3,7 @@ use bevy::ecs::system::RunSystemOnce;
 use bevy::prelude::*;
 use crate::context_system::unique_entity_ref::UniqueEntity;
 use crate::scene_system::{GenericUiSceneCreator, InstantSpawnState, SpawnState, UiSceneCreatorFn};
-use crate::ui::components::interaction_style::{InteractionNodeStyle, NodeStyleBundle};
+use crate::ui::interaction::interaction_style::{InteractionNodeStyle, NodeStyleBundle};
 use crate::ui::input::focus::InputFocusPolicy;
 use crate::ui::ui_navigation::UiNavigationEvent;
 
@@ -15,13 +15,6 @@ impl Plugin for MainMenuPagePlugin {
     }
 }
 
-// pub struct MainMenuPage {
-//     scene: Scene,
-// }
-
-#[derive(Component, Reflect, Default)]
-pub struct DummyCmp;
-
 fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
     let mut world = World::new();
 
@@ -31,7 +24,6 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
             width: Val::Percent(100.0),
             height: Val::Percent(100.0),
             flex_direction: FlexDirection::Column,
-            // justify_content: JustifyContent::End,
             align_items: AlignItems::End,
             padding: UiRect { left: Val::Px(10.0), top: Val::Px(10.0), right: Val::Px(10.0), bottom: Val::Px(10.0)},
             row_gap: Val::Px(5.0),
@@ -98,9 +90,9 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
                 });
         });
 
-    return Ok(GenericUiSceneCreator {
+    Ok(GenericUiSceneCreator {
         path: "main_menu_page".into(),
         scene: Scene::new(world),
         state: SpawnState::Instant(InstantSpawnState::Loaded),
-    });
+    })
 }

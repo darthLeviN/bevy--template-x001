@@ -1,5 +1,6 @@
 pub mod main_menu;
 mod loading_page;
+mod settings_page;
 
 pub struct PagesPlugin;
 

@@ -10,6 +10,8 @@ impl Plugin for EventSystemPlugin {
 
 pub trait HandledEventExt {
     fn is_handled(&self) -> bool;
+
+    // TODO : make this not exposed. we need set_as_handled to be exposed only.
     fn set_handled(&mut self, handled: bool);
 }
 

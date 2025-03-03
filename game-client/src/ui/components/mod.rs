@@ -1,20 +1,12 @@
-pub mod interaction_style;
-mod interaction_events;
 pub mod text_input;
+pub mod ui_elements;
 
 use bevy::prelude::*;
-use crate::ui::components::interaction_style::InteractionStylePlugin;
 
 pub struct ComponentsPlugin;
 
 impl Plugin for ComponentsPlugin {
     fn build(&self, app: &mut App) {
-        app.
-            add_plugins(
-                (
-                InteractionStylePlugin,
-                )
-            );
     }
 }
 

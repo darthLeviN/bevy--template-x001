@@ -12,7 +12,7 @@ impl Plugin for InputMapPlugin {
         app.insert_resource(InputMaps::default());
         app.insert_resource(KeyStates::default());
         app.add_systems(PostUpdate, managed_keyboard_input_system);
-        app.add_event::<ManagedKeyboardInput>();
+        // app.add_event::<ManagedKeyboardInput>();
         app.add_event::<MappedInputEvent>();
     }
 }
@@ -32,15 +32,6 @@ pub struct InputContext {
 pub enum InputValue {
     Keyboard(KeyboardInput),
 }
-
-impl Into<ManagedKeyboardInput> for KeyboardInput {
-    fn into(self) -> ManagedKeyboardInput {
-        ManagedKeyboardInput(self)
-    }
-}
-
-#[derive(Clone, Debug, Hash, PartialEq, Eq, Event)]
-pub struct ManagedKeyboardInput(pub(crate) KeyboardInput);
 
 impl InputValue {
     pub fn matches_keycode(&self, other: &Self) -> bool {
@@ -152,9 +143,10 @@ impl Default for InputMaps {
     }
 }
 
-#[derive(Clone, Debug, Component)]
+#[derive(Clone, Debug, Component, Default)]
 pub struct MappedInputEvent {
     pub keys: HashSet<String>,
+    pub logical_key: Option<Key>,
     pub(crate) is_handled: bool,
 }
 
@@ -196,7 +188,6 @@ impl KeyStates {
 pub fn managed_keyboard_input_system(
     mut keyboard_input_events: EventReader<KeyboardInput>,
     mut key_states: ResMut<KeyStates>,
-    mut managed_event_writer: EventWriter<ManagedKeyboardInput>,
     mut mapped_event_writer: EventWriter<MappedInputEvent>,
     input_maps: Res<InputMaps>) {
 
@@ -206,16 +197,21 @@ pub fn managed_keyboard_input_system(
             // debug!("Key {:?} changed state from {:?} to {:?}", event.key_code, new_state, event.state);
             let mut event = event.clone();
             event.window = Entity::PLACEHOLDER;
-            if let Some(input_context) = input_maps.comparison_cache.get(&InputValue::Keyboard(event.clone())) {
-                let mapped_input = MappedInputEvent {
+            let mapped_input = if let Some(input_context) = input_maps.comparison_cache.get(&InputValue::Keyboard(event.clone())) {
+                 MappedInputEvent {
                     keys: input_context.clone(),
-                    is_handled: false
-                };
-                mapped_event_writer.send(mapped_input);
-            }
-            let managed_input = ManagedKeyboardInput(event);
-            managed_event_writer.send(managed_input);
+                    logical_key: Some(event.logical_key.clone()),
+                    ..default()
+                }
 
+            } else {
+                MappedInputEvent {
+                    logical_key: Some(event.logical_key.clone()),
+                    ..default()
+                }
+            };
+
+            mapped_event_writer.send(mapped_input);
         }
     }
 }

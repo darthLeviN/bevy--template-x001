@@ -1,3 +1,5 @@
+#![feature(let_chains)]
+
 pub mod ui;
 pub mod scene_system;
 pub mod asset_util;
