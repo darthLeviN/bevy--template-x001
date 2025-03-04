@@ -40,6 +40,52 @@ pub struct InteractionNodeStyle {
     pub pressed_focus_style: Option<NodeStyleBundle>,
 }
 
+
+fn determine_final_style(
+    entity: Entity,
+    interaction: &PickingInteraction,
+    styles: &InteractionNodeStyle,
+    focus_policy: Option<&InputFocusPolicy>,
+    input_focus: &InputFocus,
+) -> NodeStyleBundle {
+    if focus_policy == Some(&InputFocusPolicy::DISABLED) {
+        styles.disabled_style.clone().unwrap_or(styles.default_style.clone())
+    } else {
+        match interaction {
+            PickingInteraction::None => {
+                if Some(entity) == input_focus.0 {
+                    styles
+                        .focus_style
+                        .clone()
+                        .unwrap_or(styles.default_style.clone())
+                } else {
+                    styles.default_style.clone()
+                }
+            }
+            PickingInteraction::Hovered => {
+                if Some(entity) == input_focus.0 {
+                    styles
+                        .hover_focus_style
+                        .clone()
+                        .unwrap_or(styles.hover_style.clone().unwrap_or(styles.default_style.clone()))
+                } else {
+                    styles.hover_style.clone().unwrap_or(styles.default_style.clone())
+                }
+            }
+            PickingInteraction::Pressed => {
+                if Some(entity) == input_focus.0 {
+                    styles
+                        .pressed_focus_style
+                        .clone()
+                        .unwrap_or(styles.pressed_style.clone().unwrap_or(styles.default_style.clone()))
+                } else {
+                    styles.pressed_style.clone().unwrap_or(styles.default_style.clone())
+                }
+            }
+        }
+    }
+}
+
 fn interaction_node_style_system(
     mut commands: Commands,
     mut query: Query<
@@ -55,34 +101,7 @@ fn interaction_node_style_system(
             }
         }
 
-        let final_style =
-        if focus_policy == Some(&InputFocusPolicy::DISABLED) {
-            styles.disabled_style.clone().unwrap_or(styles.default_style.clone())
-        } else {
-            match interaction {
-                PickingInteraction::None => {
-                    if Some(entity) == input_focus.0 {
-                        styles.focus_style.clone().unwrap_or(styles.default_style.clone())
-                    } else {
-                        styles.default_style.clone()
-                    }
-                }
-                PickingInteraction::Hovered => {
-                    if Some(entity) == input_focus.0 {
-                        styles.hover_focus_style.clone().unwrap_or(styles.hover_style.clone().unwrap_or(styles.default_style.clone()))
-                    } else {
-                        styles.hover_style.clone().unwrap_or(styles.default_style.clone())
-                    }
-                }
-                PickingInteraction::Pressed => {
-                    if Some(entity) == input_focus.0 {
-                        styles.pressed_focus_style.clone().unwrap_or(styles.pressed_style.clone().unwrap_or(styles.default_style.clone()))
-                    } else {
-                        styles.pressed_style.clone().unwrap_or(styles.default_style.clone())
-                    }
-                }
-            }
-        };
+        let final_style = determine_final_style(entity, interaction, styles, focus_policy, &input_focus);
 
         if let Some(text_entity) = unique_refs.and_then(|unique_refs| unique_refs.refs.get("text")) {
             commands.entity(*text_entity).insert(final_style.text_color.clone());
