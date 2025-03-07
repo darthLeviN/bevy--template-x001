@@ -1,8 +1,8 @@
 use bevy::color::palettes::basic::*;
 use bevy::ecs::system::RunSystemOnce;
 use bevy::prelude::*;
-use crate::context_system::unique_entity_ref::UniqueEntity;
 use crate::scene_system::{GenericUiSceneCreator, InstantSpawnState, SpawnState, UiSceneCreatorFn};
+use crate::ui::components::text_creator::TextCreator;
 use crate::ui::interaction::interaction_style::{InteractionNodeStyle, NodeStyleBundle};
 use crate::ui::input::focus::InputFocusPolicy;
 use crate::ui::ui_navigation::UiNavigationEvent;
@@ -60,34 +60,28 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
                 InputFocusPolicy::All
             );
 
-            let new_game_text = (
-                Text::from("New Game"),
-                UniqueEntity { tag: "text" },
-                PickingBehavior::IGNORE,
-            );
-
-            let options_text = (
-                Text::from("Options"),
-                UniqueEntity { tag: "text" },
-                PickingBehavior::IGNORE
-            );
+            // let new_game_text = (
+            //     Text::from("New Game"),
+            //     PickingBehavior::IGNORE,
+            // );
+            //
+            // let options_text = (
+            //     Text::from("Options"),
+            //     PickingBehavior::IGNORE
+            // );
 
             parent.spawn(
                 (
                     main_menu_button.clone(),
-                    UiNavigationEvent::AppendPath(vec!["new_game".to_string()])
-                ))
-                .with_children(|parent| {
-                    parent.spawn(new_game_text.clone());
-                });
+                    UiNavigationEvent::AppendPath(vec!["new_game".to_string()]),
+                    TextCreator::from("New Game"),
+                ));
 
             parent.spawn((
                 main_menu_button.clone(),
-                UiNavigationEvent::AppendPath(vec!["options".to_string()])
-            ))
-                .with_children(|parent| {
-                    parent.spawn(options_text.clone());
-                });
+                UiNavigationEvent::AppendPath(vec!["options".to_string()]),
+                TextCreator::from("Options"),
+            ));
         });
 
     Ok(GenericUiSceneCreator {

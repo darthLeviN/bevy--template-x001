@@ -1,6 +1,7 @@
+use std::time::SystemTime;
 use bevy::picking::focus::PickingInteraction;
 use bevy::prelude::*;
-use crate::context_system::unique_entity_ref::UniqueEntityRefs;
+use crate::ui::components::text_creator::TextCreator;
 use crate::ui::input::focus::{InputFocus, InputFocusPolicy};
 
 pub struct InteractionStylePlugin;
@@ -13,9 +14,11 @@ impl Plugin for InteractionStylePlugin {
             (
                 interaction_node_style_system,
             )
-        ).
-            register_type::<InteractionNodeStyle>()
-        ;
+        );
+        app.register_type::<InteractionNodeStyle>();
+
+        app.add_observer(interaction_node_style_over_observer);
+        app.add_observer(interaction_node_style_out_observer);
     }
 }
 
@@ -86,29 +89,52 @@ fn determine_final_style(
     }
 }
 
+fn interaction_node_style_over_observer(
+    trigger: Trigger<Pointer<Over>>,
+    mut query: Query<(Entity, &InteractionNodeStyle, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>)>,
+    input_focus: Res<InputFocus>,
+    mut commands: Commands) {
+    let picking_interaction = PickingInteraction::Hovered;
+    update_interaction_style(trigger.entity(), Some(picking_interaction), &mut query, &mut commands, &input_focus);
+}
+
+fn interaction_node_style_out_observer(
+    trigger: Trigger<Pointer<Out>>,
+    mut query: Query<(Entity, &InteractionNodeStyle, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>)>,
+    input_focus: Res<InputFocus>,
+    mut commands: Commands) {
+    let picking_interaction = PickingInteraction::None;
+    update_interaction_style(trigger.entity(), Some(picking_interaction), &mut query, &mut commands, &input_focus);
+}
+
+fn update_interaction_style(
+    entity: Entity,
+    picking_interaction: Option<PickingInteraction>,
+    mut query: &mut Query<(Entity, &InteractionNodeStyle, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>)>,
+    commands: &mut Commands,
+    input_focus: &Res<InputFocus>) {
+    if let Ok((entity, interaction_style, children, focus_policy, text_creator)) = query.get(entity) {
+        let interaction = if let Some(interaction) = picking_interaction { interaction } else { PickingInteraction::None };
+        let final_style = determine_final_style(entity, &interaction, interaction_style, focus_policy, &input_focus);
+
+        commands.entity(entity).insert(final_style);
+    }
+}
+
+
 fn interaction_node_style_system(
     mut commands: Commands,
     mut query: Query<
-        (Entity, &InteractionNodeStyle, Option<&PickingInteraction>, &InteractionNodeStyle, Option<&Children>, Option<&UniqueEntityRefs>, Option<&InputFocusPolicy>),
-        Or<(Changed<PickingInteraction>, Changed<UniqueEntityRefs>)>>,
+        (Entity, &InteractionNodeStyle, Option<&PickingInteraction>, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>),
+        Added<InteractionNodeStyle>>,
     input_focus: Res<InputFocus>) {
-    for (entity, _, interaction, styles, _, unique_refs, focus_policy) in query.iter_mut() {
-        let interaction = if let Some(interaction) = interaction { interaction } else { &PickingInteraction::None };
-        if let Some(unique_refs) = unique_refs {
-            // Redundant change.
-            if !unique_refs.changed.contains("text") {
-                continue;
-            }
-        }
+    for (entity, interaction_style, picking_interaction, children, focus_policy, text_creator) in query.iter_mut() {
+        let now = SystemTime::now();
 
-        let final_style = determine_final_style(entity, interaction, styles, focus_policy, &input_focus);
 
-        if let Some(text_entity) = unique_refs.and_then(|unique_refs| unique_refs.refs.get("text")) {
-            commands.entity(*text_entity).insert(final_style.text_color.clone());
-        }
+        let interaction = if let Some(interaction) = picking_interaction { interaction } else { &PickingInteraction::None };
+        let final_style = determine_final_style(entity, interaction, interaction_style, focus_policy, &input_focus);
 
         commands.entity(entity).insert(final_style);
-
-
     }
 }

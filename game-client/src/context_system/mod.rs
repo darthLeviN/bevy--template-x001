@@ -1,16 +1,9 @@
-pub mod unique_entity_ref;
-
 use bevy::prelude::*;
-use crate::context_system::unique_entity_ref::UniqueEntityRefPlugin;
 
 pub struct ContextSystemPlugin;
 
 impl Plugin for ContextSystemPlugin {
-    fn build(&self, app: &mut App) {
-        app
-            .add_plugins(
-                UniqueEntityRefPlugin,
-            );
+    fn build(&self, _: &mut App) {
     }
 }
 
