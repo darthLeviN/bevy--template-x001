@@ -192,26 +192,25 @@ pub fn managed_keyboard_input_system(
     input_maps: Res<InputMaps>) {
 
     for event in keyboard_input_events.read() {
-        if let Some(_) = key_states.set_state(event.key_code, event.state) {
-            // This isn't safe. Key logging might have sensitive data.
-            // debug!("Key {:?} changed state from {:?} to {:?}", event.key_code, new_state, event.state);
-            let mut event = event.clone();
-            event.window = Entity::PLACEHOLDER;
-            let mapped_input = if let Some(input_context) = input_maps.comparison_cache.get(&InputValue::Keyboard(event.clone())) {
-                 MappedInputEvent {
-                    keys: input_context.clone(),
-                    keyboard_input: Some(event),
-                    ..default()
-                }
+        key_states.set_state(event.key_code, event.state);
+        // This isn't safe. Key logging might have sensitive data.
+        // debug!("Key {:?} changed state from {:?} to {:?}", event.key_code, new_state, event.state);
+        let mut event = event.clone();
+        event.window = Entity::PLACEHOLDER;
+        let mapped_input = if let Some(input_context) = input_maps.comparison_cache.get(&InputValue::Keyboard(event.clone())) {
+            MappedInputEvent {
+                keys: input_context.clone(),
+                keyboard_input: Some(event),
+                ..default()
+            }
 
-            } else {
-                MappedInputEvent {
-                    keyboard_input: Some(event),
-                    ..default()
-                }
-            };
+        } else {
+            MappedInputEvent {
+                keyboard_input: Some(event),
+                ..default()
+            }
+        };
 
-            mapped_event_writer.send(mapped_input);
-        }
+        mapped_event_writer.send(mapped_input);
     }
 }
