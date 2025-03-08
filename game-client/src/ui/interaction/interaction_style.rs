@@ -4,7 +4,7 @@ use bevy::picking::focus::PickingInteraction;
 use bevy::prelude::*;
 use crate::ui::components::FULL_SIZE_NODE;
 use crate::ui::components::text_creator::TextCreator;
-use crate::ui::input::focus::{InputFocus, InputFocusPolicy};
+use crate::ui::input::focus::{FocusReleased, Focused, InputFocus, InputFocusPolicy};
 
 pub struct InteractionStylePlugin;
 
@@ -21,6 +21,8 @@ impl Plugin for InteractionStylePlugin {
 
         app.add_observer(interaction_node_style_over_observer);
         app.add_observer(interaction_node_style_out_observer);
+        app.add_observer(interaction_node_style_focused_observer);
+        app.add_observer(interaction_node_style_released_observer);
     }
 }
 
@@ -104,7 +106,7 @@ fn determine_final_style(
 
 fn interaction_node_style_over_observer(
     trigger: Trigger<Pointer<Over>>,
-    mut query: Query<(Entity, &NodeStyle, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>)>,
+    mut query: Query<(Entity, &NodeStyle, Option<&Children>, Option<&InputFocusPolicy>)>,
     input_focus: Res<InputFocus>,
     mut commands: Commands) {
     let picking_interaction = PickingInteraction::Hovered;
@@ -114,9 +116,29 @@ fn interaction_node_style_over_observer(
 
 fn interaction_node_style_out_observer(
     trigger: Trigger<Pointer<Out>>,
-    mut query: Query<(Entity, &NodeStyle, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>)>,
+    mut query: Query<(Entity, &NodeStyle, Option<&Children>, Option<&InputFocusPolicy>)>,
     input_focus: Res<InputFocus>,
     mut commands: Commands) {
+    let picking_interaction = PickingInteraction::None;
+    update_interaction_style(trigger.entity(), Some(picking_interaction), &mut query, &mut commands, &input_focus);
+}
+
+fn interaction_node_style_focused_observer(
+    trigger: Trigger<Focused>,
+    mut query: Query<(Entity, &NodeStyle, Option<&Children>, Option<&InputFocusPolicy>)>,
+    input_focus: Res<InputFocus>,
+    mut commands: Commands
+) {
+    let picking_interaction = PickingInteraction::None;
+    update_interaction_style(trigger.entity(), Some(picking_interaction), &mut query, &mut commands, &input_focus);
+}
+
+fn interaction_node_style_released_observer(
+    trigger: Trigger<FocusReleased>,
+    mut query: Query<(Entity, &NodeStyle, Option<&Children>, Option<&InputFocusPolicy>)>,
+    input_focus: Res<InputFocus>,
+    mut commands: Commands
+) {
     let picking_interaction = PickingInteraction::None;
     update_interaction_style(trigger.entity(), Some(picking_interaction), &mut query, &mut commands, &input_focus);
 }
@@ -124,10 +146,10 @@ fn interaction_node_style_out_observer(
 fn update_interaction_style(
     entity: Entity,
     picking_interaction: Option<PickingInteraction>,
-    mut query: &mut Query<(Entity, &NodeStyle, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>)>,
+    mut query: &mut Query<(Entity, &NodeStyle, Option<&Children>, Option<&InputFocusPolicy>)>,
     commands: &mut Commands,
     input_focus: &Res<InputFocus>) {
-    if let Ok((entity, interaction_style, children, focus_policy, text_creator)) = query.get(entity) {
+    if let Ok((entity, interaction_style, children, focus_policy)) = query.get(entity) {
         let interaction = if let Some(interaction) = picking_interaction { interaction } else { PickingInteraction::None };
         let final_style = determine_final_style(entity, &interaction, interaction_style, focus_policy, &input_focus);
 

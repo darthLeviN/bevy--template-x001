@@ -85,7 +85,7 @@ impl SetNextInputFocusTrait for World {
                 let mut input_focus = self.get_resource_mut::<InputFocus>().unwrap();
                 if input_focus.0 != Some(entity) {
                     input_focus.0 = Some(entity);
-                    debug!(entity = ?entity, "Focus changed");
+                    info!(entity = ?entity, "Focus changed");
                 }
                 Ok(())
             } else {

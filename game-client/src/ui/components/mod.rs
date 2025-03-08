@@ -4,13 +4,17 @@ pub mod text_creator;
 
 use bevy::prelude::*;
 use crate::ui::components::text_creator::TextCreatorPlugin;
+use crate::ui::components::text_input::TextInputPlugin;
 
 pub struct ComponentsPlugin;
 
 impl Plugin for ComponentsPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(
-            TextCreatorPlugin
+            TextCreatorPlugin,
+        );
+        app.add_plugins(
+            TextInputPlugin,
         );
     }
 }
