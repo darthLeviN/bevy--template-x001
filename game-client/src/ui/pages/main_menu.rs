@@ -3,7 +3,7 @@ use bevy::ecs::system::RunSystemOnce;
 use bevy::prelude::*;
 use crate::scene_system::{GenericUiSceneCreator, InstantSpawnState, SpawnState, UiSceneCreatorFn};
 use crate::ui::components::text_creator::TextCreator;
-use crate::ui::interaction::interaction_style::{InteractionNodeStyle, NodeStyleBundle};
+use crate::ui::interaction::interaction_style::{NodeStyle, MainStyle};
 use crate::ui::input::focus::InputFocusPolicy;
 use crate::ui::theme::ThemeElement;
 use crate::ui::ui_navigation::UiNavigationEvent;

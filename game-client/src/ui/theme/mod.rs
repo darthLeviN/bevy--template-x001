@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 use bevy::log::tracing_subscriber::filter::combinator::And;
-use crate::ui::interaction::interaction_style::InteractionNodeStyle;
+use crate::ui::interaction::interaction_style::NodeStyle;
 use bevy::prelude::*;
 use crate::event_system::{HandledEventExt, UnhandledEventCommandsExt, UnhandledEventTriggerExt, UnhandledEventWorldExt};
 
@@ -24,7 +24,7 @@ impl ThemeElement {
 // Default theme will be the resource, the rest will be the component.
 #[derive(Resource, Default, Component)]
 pub struct Theme {
-    pub class_stylesheet: std::collections::HashMap<Cow<'static, str>, InteractionNodeStyle>,
+    pub class_stylesheet: std::collections::HashMap<Cow<'static, str>, NodeStyle>,
 }
 
 pub struct ThemePlugin;

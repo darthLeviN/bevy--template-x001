@@ -17,7 +17,7 @@ impl Plugin for InteractionStylePlugin {
                 interaction_node_style_system,
             )
         );
-        app.register_type::<InteractionNodeStyle>();
+        app.register_type::<NodeStyle>();
 
         app.add_observer(interaction_node_style_over_observer);
         app.add_observer(interaction_node_style_out_observer);
@@ -35,7 +35,7 @@ impl Default for TextNodeLayout {
 }
 
 #[derive(Default, Clone, Bundle, Reflect)]
-pub struct NodeStyleBundle {
+pub struct MainStyle {
     pub background_color: BackgroundColor,
     pub outline: Outline,
     pub border_radius: BorderRadius,
@@ -46,24 +46,24 @@ pub struct NodeStyleBundle {
 
 #[derive(Default, Component, Reflect, Clone)]
 #[reflect(Component)]
-pub struct InteractionNodeStyle {
-    pub default_style: NodeStyleBundle,
-    pub hover_style: Option<NodeStyleBundle>,
-    pub pressed_style: Option<NodeStyleBundle>,
-    pub disabled_style: Option<NodeStyleBundle>,
-    pub focus_style: Option<NodeStyleBundle>,
-    pub hover_focus_style: Option<NodeStyleBundle>,
-    pub pressed_focus_style: Option<NodeStyleBundle>,
+pub struct NodeStyle {
+    pub default_style: MainStyle,
+    pub hover_style: Option<MainStyle>,
+    pub pressed_style: Option<MainStyle>,
+    pub disabled_style: Option<MainStyle>,
+    pub focus_style: Option<MainStyle>,
+    pub hover_focus_style: Option<MainStyle>,
+    pub pressed_focus_style: Option<MainStyle>,
 }
 
 
 fn determine_final_style(
     entity: Entity,
     interaction: &PickingInteraction,
-    styles: &InteractionNodeStyle,
+    styles: &NodeStyle,
     focus_policy: Option<&InputFocusPolicy>,
     input_focus: &InputFocus,
-) -> NodeStyleBundle {
+) -> MainStyle {
     if focus_policy == Some(&InputFocusPolicy::DISABLED) {
         styles.disabled_style.clone().unwrap_or(styles.default_style.clone())
     } else {
@@ -104,7 +104,7 @@ fn determine_final_style(
 
 fn interaction_node_style_over_observer(
     trigger: Trigger<Pointer<Over>>,
-    mut query: Query<(Entity, &InteractionNodeStyle, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>)>,
+    mut query: Query<(Entity, &NodeStyle, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>)>,
     input_focus: Res<InputFocus>,
     mut commands: Commands) {
     let picking_interaction = PickingInteraction::Hovered;
@@ -114,7 +114,7 @@ fn interaction_node_style_over_observer(
 
 fn interaction_node_style_out_observer(
     trigger: Trigger<Pointer<Out>>,
-    mut query: Query<(Entity, &InteractionNodeStyle, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>)>,
+    mut query: Query<(Entity, &NodeStyle, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>)>,
     input_focus: Res<InputFocus>,
     mut commands: Commands) {
     let picking_interaction = PickingInteraction::None;
@@ -124,7 +124,7 @@ fn interaction_node_style_out_observer(
 fn update_interaction_style(
     entity: Entity,
     picking_interaction: Option<PickingInteraction>,
-    mut query: &mut Query<(Entity, &InteractionNodeStyle, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>)>,
+    mut query: &mut Query<(Entity, &NodeStyle, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>)>,
     commands: &mut Commands,
     input_focus: &Res<InputFocus>) {
     if let Ok((entity, interaction_style, children, focus_policy, text_creator)) = query.get(entity) {
@@ -139,8 +139,8 @@ fn update_interaction_style(
 fn interaction_node_style_system(
     mut commands: Commands,
     mut query: Query<
-        (Entity, &InteractionNodeStyle, Option<&PickingInteraction>, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>),
-        Added<InteractionNodeStyle>>,
+        (Entity, &NodeStyle, Option<&PickingInteraction>, Option<&Children>, Option<&InputFocusPolicy>, Option<&TextCreator>),
+        Added<NodeStyle>>,
     input_focus: Res<InputFocus>) {
     for (entity, interaction_style, picking_interaction, children, focus_policy, text_creator) in query.iter_mut() {
         let now = SystemTime::now();
