@@ -2,6 +2,7 @@ use bevy::color::palettes::basic::*;
 use bevy::ecs::system::RunSystemOnce;
 use bevy::prelude::*;
 use crate::scene_system::{GenericUiSceneCreator, InstantSpawnState, SpawnState, UiSceneCreatorFn};
+use crate::ui::components::FULL_SIZE_NODE;
 use crate::ui::components::text_creator::TextCreator;
 use crate::ui::interaction::interaction_style::{NodeStyle, MainStyle};
 use crate::ui::input::focus::InputFocusPolicy;
@@ -84,6 +85,15 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
                 UiNavigationEvent::AppendPath(vec!["options".to_string()]),
                 TextCreator::from("Options"),
             ));
+
+            parent.spawn(
+                (
+                    Node::default(),
+                    TextCreator::from("Enter your name: "),
+                    ThemeElement::from_class("text_input"),
+                    InputFocusPolicy::All,
+                )
+            );
         });
 
     Ok(GenericUiSceneCreator {

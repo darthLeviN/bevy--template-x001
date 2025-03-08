@@ -6,6 +6,8 @@ pub struct UiFocusPlugin;
 
 impl Plugin for UiFocusPlugin {
     fn build(&self, app: &mut App) {
+        app.add_event::<Focused>();
+        app.add_event::<FocusReleased>();
         app.add_observer(click_focus_change_observer);
         app.add_observer(default_focus_release_input_observer);
         app.add_observer(focus_release_despawn_system);
@@ -15,6 +17,7 @@ impl Plugin for UiFocusPlugin {
         app.add_event::<ReleaseFocusEvent>();
         app.register_type::<InputFocusPolicy>();
         app.insert_resource(InputFocus(None));
+        app.add_systems(Last, focus_change_propagator_system);
     }
 }
 
@@ -27,6 +30,16 @@ pub enum InputFocusPolicy {
     None,
     All,
     DISABLED
+}
+
+#[derive(Event, Clone, Debug)]
+pub struct FocusReleased {
+    pub entity: Entity,
+}
+
+#[derive(Event, Clone, Debug)]
+pub struct Focused {
+    pub entity: Entity,
 }
 
 #[derive(Event, Clone, Debug)]
@@ -100,7 +113,6 @@ pub fn default_focus_release_input_observer(trigger: Trigger<UnhandledInputEvent
 
 pub fn focus_release_despawn_system(
     trigger: Trigger<OnRemove, InputFocusPolicy>,
-    // input_focus: Res<InputFocus>,
     parents: Query<&Parent>,
     mut commands: Commands) {
     let entity = trigger.entity();
@@ -200,6 +212,38 @@ fn keyboard_event_system(mut event_reader: EventReader<MappedInputEvent>, input_
             world.trigger_unhandled_event(event, focus_entity.unwrap_or(Entity::PLACEHOLDER));
         }
     });
+}
 
-
+// When focus has changed at the end of the frame,inform other systems and observers of this change.
+// Useful for things like updating styles.
+// Because some system might try to modify InputFocus manually for utility we have this to take care
+// Of propagating the changes.
+fn focus_change_propagator_system(
+    mut local: Local<Option<Entity>>,
+    mut focused_writer: EventWriter<Focused>,
+    mut released_writer: EventWriter<FocusReleased>,
+    input_focus: Res<InputFocus>,
+    mut commands: Commands,
+) {
+    let mut prev_focus = local;
+    let next_focus = input_focus.0;
+    if next_focus != *prev_focus {
+        if let Some(prev_focus) = *prev_focus {
+            released_writer.send(FocusReleased {
+                entity: prev_focus,
+            });
+            commands.trigger_targets(FocusReleased {
+                entity: prev_focus,
+            }, prev_focus);
+        }
+        if let Some(next_focus) = next_focus {
+            focused_writer.send(Focused {
+                entity: next_focus,
+            });
+            commands.trigger_targets( Focused {
+                entity: next_focus,
+            }, next_focus);
+        }
+        *prev_focus = next_focus;
+    }
 }

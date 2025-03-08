@@ -51,7 +51,7 @@ where
 impl Default for TextCreator {
     fn default() -> Self {
         Self {
-            text: Cow::Borrowed("Default Text"),
+            text: Cow::Borrowed(""),
             entity: Entity::PLACEHOLDER,
         }
     }
@@ -59,10 +59,12 @@ impl Default for TextCreator {
 
 fn on_add_text_creator(mut world: DeferredWorld, entity: Entity, _: ComponentId) {
     let text_creator = world.get::<TextCreator>(entity).unwrap();
+    println!("spawning text from text creator : {}", text_creator.text);
     let text = Text::new(text_creator.text.clone());
     let mut commands = world.commands();
     let text_entity = commands.spawn((text, DerivedText, PickingBehavior::IGNORE)).set_parent_in_place(entity).id();
     let mut text_creator = world.get_mut::<TextCreator>(entity).unwrap();
+
     text_creator.entity = text_entity;
 }
 
