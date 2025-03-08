@@ -88,8 +88,12 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
 
             parent.spawn(
                 (
-                    Node::default(),
-                    TextCreator::from("Enter your name: "),
+                    Node {
+                        width: Val::Px(300.0),
+                        height: Val::Auto,
+                        ..default()
+                    },
+                    TextCreator::from("H "),
                     ThemeElement::from_class("text_input"),
                     InputFocusPolicy::All,
                 )

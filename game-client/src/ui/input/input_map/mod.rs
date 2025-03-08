@@ -146,7 +146,7 @@ impl Default for InputMaps {
 #[derive(Clone, Debug, Component, Default)]
 pub struct MappedInputEvent {
     pub keys: HashSet<String>,
-    pub logical_key: Option<Key>,
+    pub keyboard_input: Option<KeyboardInput>,
     pub(crate) is_handled: bool,
 }
 
@@ -200,13 +200,13 @@ pub fn managed_keyboard_input_system(
             let mapped_input = if let Some(input_context) = input_maps.comparison_cache.get(&InputValue::Keyboard(event.clone())) {
                  MappedInputEvent {
                     keys: input_context.clone(),
-                    logical_key: Some(event.logical_key.clone()),
+                    keyboard_input: Some(event),
                     ..default()
                 }
 
             } else {
                 MappedInputEvent {
-                    logical_key: Some(event.logical_key.clone()),
+                    keyboard_input: Some(event),
                     ..default()
                 }
             };

@@ -59,31 +59,62 @@ pub struct BasicTextInput {
 
 fn basic_text_input_observer(mut trigger: Trigger<MappedInputEvent>, mut commands: Commands) {
     let entity = trigger.entity();
-    match trigger.event().logical_key.clone() {
-        Some(Key::Character(cc)) => {
-
-            commands.queue(move |mut world: &mut World| {
-                let mut input_focus = world.resource::<InputFocus>();
-                let current_input_focus = input_focus.0;
-                if Some(entity) == current_input_focus {
-                    if let Some(mut text_creator) = world.get_mut::<TextCreator>(entity).as_mut() {
-                        text_creator.text.to_mut().push_str(cc.as_str());
-                    }
-                }
-            });
-        }
-        Some(CLEAR_TEXT_KEY) => {
-            commands.queue(move |mut world: &mut World| {
-                let mut input_focus = world.resource::<InputFocus>();
-                let current_input_focus = input_focus.0;
-                if Some(entity) == current_input_focus {
-                    if let Some(mut text_creator) = world.get_mut::<TextCreator>(entity).as_mut() {
-                        text_creator.text = Borrowed("");
-                    }
-                }
-            });
+    if let Some(keyboard_input) = trigger.event().keyboard_input.as_ref() {
+        if !keyboard_input.repeat && !keyboard_input.state.is_pressed() {
+            return;
         }
 
-        _ => {}
+        match keyboard_input.logical_key.clone() {
+            Key::Character(cc) => {
+
+                commands.queue(move |mut world: &mut World| {
+                    let mut input_focus = world.resource::<InputFocus>();
+                    let current_input_focus = input_focus.0;
+                    if Some(entity) == current_input_focus {
+                        if let Some(mut text_creator) = world.get_mut::<TextCreator>(entity).as_mut() {
+                            text_creator.text.to_mut().push_str(cc.as_str());
+                        }
+                    }
+                });
+            }
+            CLEAR_TEXT_KEY => {
+                commands.queue(move |mut world: &mut World| {
+                    let mut input_focus = world.resource::<InputFocus>();
+                    let current_input_focus = input_focus.0;
+                    if Some(entity) == current_input_focus {
+                        if let Some(mut text_creator) = world.get_mut::<TextCreator>(entity).as_mut() {
+                            text_creator.text = Borrowed("");
+                        }
+                    }
+                });
+            }
+
+            Key::Space => {
+                commands.queue(move |mut world: &mut World| {
+                    let mut input_focus = world.resource::<InputFocus>();
+                    let current_input_focus = input_focus.0;
+                    if Some(entity) == current_input_focus {
+                        if let Some(mut text_creator) = world.get_mut::<TextCreator>(entity).as_mut() {
+                            text_creator.text.to_mut().push(' ');
+                        }
+                    }
+                });
+            }
+
+            Key::Backspace => {
+                commands.queue(move |mut world: &mut World| {
+                    let mut input_focus = world.resource::<InputFocus>();
+                    let current_input_focus = input_focus.0;
+                    if Some(entity) == current_input_focus {
+                        if let Some(mut text_creator) = world.get_mut::<TextCreator>(entity).as_mut() {
+                            text_creator.text.to_mut().pop();
+                        }
+                    }
+                });
+            }
+
+            _ => {}
+        }
     }
+
 }
