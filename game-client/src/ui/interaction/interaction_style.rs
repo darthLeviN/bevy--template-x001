@@ -2,6 +2,7 @@ use std::time::SystemTime;
 use bevy::core::FrameCount;
 use bevy::picking::focus::PickingInteraction;
 use bevy::prelude::*;
+use crate::ui::components::FULL_SIZE_NODE;
 use crate::ui::components::text_creator::TextCreator;
 use crate::ui::input::focus::{InputFocus, InputFocusPolicy};
 
@@ -23,16 +24,27 @@ impl Plugin for InteractionStylePlugin {
     }
 }
 
-#[derive(Default, Clone, Copy, Bundle, Reflect)]
+#[derive(Component, Reflect, Clone, Debug)]
+#[reflect(Component)]
+pub struct TextNodeLayout(pub Node);
+
+impl Default for TextNodeLayout {
+    fn default() -> Self {
+        Self(FULL_SIZE_NODE.clone())
+    }
+}
+
+#[derive(Default, Clone, Bundle, Reflect)]
 pub struct NodeStyleBundle {
     pub background_color: BackgroundColor,
     pub outline: Outline,
     pub border_radius: BorderRadius,
     pub border_color: BorderColor,
     pub text_color: TextColor,
+    pub text_node_style: TextNodeLayout,
 }
 
-#[derive(Default, Component, Reflect, Clone, Copy)]
+#[derive(Default, Component, Reflect, Clone)]
 #[reflect(Component)]
 pub struct InteractionNodeStyle {
     pub default_style: NodeStyleBundle,
