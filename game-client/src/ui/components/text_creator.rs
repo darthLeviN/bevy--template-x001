@@ -22,6 +22,7 @@ impl Plugin for TextCreatorPlugin {
     }
 }
 
+// Indicates that the selected text is dervied from a text creator.
 #[derive(Component)]
 pub struct DerivedText;
 

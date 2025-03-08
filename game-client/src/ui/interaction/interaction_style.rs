@@ -22,7 +22,7 @@ impl Plugin for InteractionStylePlugin {
     }
 }
 
-#[derive(Default, Clone, Bundle, Reflect)]
+#[derive(Default, Clone, Copy, Bundle, Reflect)]
 pub struct NodeStyleBundle {
     pub background_color: BackgroundColor,
     pub outline: Outline,
@@ -31,7 +31,7 @@ pub struct NodeStyleBundle {
     pub text_color: TextColor,
 }
 
-#[derive(Default, Component, Reflect, Clone)]
+#[derive(Default, Component, Reflect, Clone, Copy)]
 #[reflect(Component)]
 pub struct InteractionNodeStyle {
     pub default_style: NodeStyleBundle,

@@ -17,14 +17,14 @@ pub trait HandledEventExt {
 
 #[derive(Debug, Component)]
 pub struct UnhandledInputEvent<T>
-where T: Event + Debug + Component
+where T: Event + Component
 {
     pub(crate) event: T,
 }
 
 
 impl<T> Event for UnhandledInputEvent<T>
-where T: Event + Debug + Component
+where T: Event + Component
 {
     type Traversal = ();
 
@@ -32,11 +32,11 @@ where T: Event + Debug + Component
 }
 
 pub trait UnhandledEventWorldExt {
-    fn trigger_unhandled_event<T: Event + Debug + Component + HandledEventExt>(&mut self, event: T, target: Entity);
+    fn trigger_unhandled_event<T: Event + Component + HandledEventExt>(&mut self, event: T, target: Entity);
 }
 
 impl UnhandledEventWorldExt for World {
-    fn trigger_unhandled_event<T: Event + Debug + Component + HandledEventExt>(&mut self, mut event: T, target: Entity) {
+    fn trigger_unhandled_event<T: Event + Component + HandledEventExt>(&mut self, mut event: T, target: Entity) {
         if target != Entity::PLACEHOLDER {
             self.trigger_targets_ref(&mut event, target);
         }
@@ -53,11 +53,11 @@ impl UnhandledEventWorldExt for World {
 }
 
 pub trait UnhandledEventCommandsExt {
-    fn trigger_unhandled_event<T: Event + Debug + Component + HandledEventExt>(&mut self, event: T, target: Entity);
+    fn trigger_unhandled_event<T: Event + Component + HandledEventExt>(&mut self, event: T, target: Entity);
 }
 
 impl<'w, 's> UnhandledEventCommandsExt for Commands<'w,'s> {
-    fn trigger_unhandled_event<T: Event + Debug + Component + HandledEventExt>(&mut self, event: T, target: Entity) {
+    fn trigger_unhandled_event<T: Event + Component + HandledEventExt>(&mut self, event: T, target: Entity) {
         self.queue(move |world: &mut World| {
             world.trigger_unhandled_event(event, target);
         })
@@ -71,7 +71,7 @@ pub trait UnhandledEventTriggerExt {
 
 impl<'w, T> UnhandledEventTriggerExt for Trigger<'w, T>
 where
-    T: Event + Debug + Component + HandledEventExt,
+    T: Event + Component + HandledEventExt,
 {
     fn set_as_handled(&mut self) {
         self.propagate(false);

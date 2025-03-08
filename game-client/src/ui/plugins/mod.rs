@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::ui::theme::ThemePlugin;
 
 pub struct UiPlugin;
 
@@ -11,6 +12,7 @@ impl Plugin for UiPlugin {
             .add_plugins(crate::ui::components::ComponentsPlugin)
             .add_plugins(crate::context_system::ContextSystemPlugin)
             .add_plugins(crate::ui::input::InputPlugin)
-            .add_plugins(crate::ui::interaction::CustomInteractionPlugin);
+            .add_plugins(crate::ui::interaction::CustomInteractionPlugin)
+            .add_plugins(ThemePlugin);
     }
 }
