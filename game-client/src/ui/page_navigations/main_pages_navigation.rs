@@ -28,7 +28,7 @@ fn main_pages_navigation(base_world: &mut World) -> Result<GenericUiSceneCreator
     world.spawn(
         (nav,
          FULL_SIZE_NODE.clone(),
-         BackgroundColor(BLACK.into()),
+         BackgroundColor(BLUE.into()),
         ));
 
     return Ok(GenericUiSceneCreator {

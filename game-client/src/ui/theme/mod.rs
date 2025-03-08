@@ -47,7 +47,8 @@ fn on_changed_theme_system(
     element_query: Query<(&ThemeElement)>,
     changed_element_query: Query<(Entity, &ThemeElement), Changed<ThemeElement>>,
     parent_query: Query<&Parent>,
-    children: Query<&Children>) {
+    children: Query<&Children>,
+    default_theme: Res<Theme>) {
     // Algorithm :
     // - Collect changed theme elements into a hashmap
     // - Create a set of entities for changed themes. Ensure subtrees do not intersect by removing repeated parents.
@@ -91,14 +92,23 @@ fn on_changed_theme_system(
     // Now we have a list of all elements that need updating. We will search in their ancestors to see what they have.
     for (entity, element) in elements.iter() {
         // Search through the acnestors. if any is a Theme, try to get the style from it.
+        let mut theme_found = false;
         for ancestor in parent_query.iter_ancestors(entity.clone()) {
             if let Ok(theme) = theme_query.get(ancestor) {
                 if let Some(style) = theme.class_stylesheet.get(&element.class) {
                     commands.entity(entity.clone()).insert(style.clone());
 
                     // We managed to find the theme style for this element
+                    theme_found = true;
                     break;
                 }
+            }
+        }
+
+        // We didn't find a theme component for it. use the global default theme.
+        if !theme_found {
+            if let Some(style) = default_theme.class_stylesheet.get(&element.class) {
+                commands.entity(entity.clone()).insert(style.clone());
             }
         }
     }

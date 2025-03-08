@@ -5,6 +5,7 @@ use crate::scene_system::{GenericUiSceneCreator, InstantSpawnState, SpawnState, 
 use crate::ui::components::text_creator::TextCreator;
 use crate::ui::interaction::interaction_style::{InteractionNodeStyle, NodeStyleBundle};
 use crate::ui::input::focus::InputFocusPolicy;
+use crate::ui::theme::ThemeElement;
 use crate::ui::ui_navigation::UiNavigationEvent;
 
 pub struct MainMenuPagePlugin;
@@ -29,29 +30,30 @@ fn main_menu(_: &mut World) -> anyhow::Result<GenericUiSceneCreator> {
             row_gap: Val::Px(5.0),
             ..default()
         },
-        BackgroundColor(BLACK.into()),
+        BackgroundColor(GREEN.into()),
     );
 
     world.spawn(vbox)
         .with_children( |parent| {
-            let next_game_button_styles = InteractionNodeStyle {
-                default_style : NodeStyleBundle {
-                    background_color: BackgroundColor(BLUE.into()),
-                    border_radius: BorderRadius::all(Val::Px(10.0)),
-                    border_color: BorderColor(WHITE.into()),
-                    ..default()
-                },
-                hover_style : Some(NodeStyleBundle {
-                    background_color: BackgroundColor(YELLOW.into()),
-                    border_radius: BorderRadius::all(Val::Px(10.0)),
-                    text_color: TextColor(BLACK.into()),
-                    ..default()
-                }),
-                ..default()
-            };
+            // let next_game_button_styles = InteractionNodeStyle {
+            //     default_style : NodeStyleBundle {
+            //         background_color: BackgroundColor(BLUE.into()),
+            //         border_radius: BorderRadius::all(Val::Px(10.0)),
+            //         border_color: BorderColor(WHITE.into()),
+            //         ..default()
+            //     },
+            //     hover_style : Some(NodeStyleBundle {
+            //         background_color: BackgroundColor(YELLOW.into()),
+            //         border_radius: BorderRadius::all(Val::Px(10.0)),
+            //         text_color: TextColor(BLACK.into()),
+            //         ..default()
+            //     }),
+            //     ..default()
+            // };
             let main_menu_button = (
                 Button,
-                next_game_button_styles,
+                ThemeElement::from_class("button"),
+                // next_game_button_styles,
                 Node {
                     padding: UiRect::all(Val::Px(4.0)),
                     border: UiRect::all(Val::Px(1.0)),

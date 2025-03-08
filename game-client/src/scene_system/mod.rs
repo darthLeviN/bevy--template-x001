@@ -3,6 +3,7 @@ mod dynamic_system;
 use std::collections::HashMap;
 use bevy::prelude::*;
 use bevy::asset::Assets;
+use bevy::color::palettes::css::*;
 use crate::ui::components::FULL_SIZE_NODE;
 
 #[derive(Clone, Reflect)]
@@ -46,10 +47,20 @@ impl GenericScene {
                 commands.spawn(bundle)
             },
             GenericScene::UiScene(bundle) => {
-                commands.spawn((bundle, FULL_SIZE_NODE.clone(), PickingBehavior::IGNORE))
+                // We use a proxy entity because for some reason Z index is getting messed up.
+                let proxy_entity = commands.spawn((FULL_SIZE_NODE.clone(),  PickingBehavior::IGNORE)).id();
+
+                let mut ecommands = commands.spawn((bundle, FULL_SIZE_NODE.clone(), PickingBehavior::IGNORE));
+                ecommands.set_parent_in_place(proxy_entity);
+                ecommands
             },
             GenericScene::DynamicUiScene(bundle) => {
-                commands.spawn((bundle, FULL_SIZE_NODE.clone(), PickingBehavior::IGNORE))
+                // We use a proxy entity because for some reason Z index is getting messed up.
+                let proxy_entity = commands.spawn((FULL_SIZE_NODE.clone(), PickingBehavior::IGNORE)).id();
+
+                let mut ecommands = commands.spawn((bundle, FULL_SIZE_NODE.clone(), PickingBehavior::IGNORE));
+                ecommands.set_parent_in_place(proxy_entity);
+                ecommands
             }
         }
     }
