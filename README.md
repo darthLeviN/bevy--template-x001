@@ -23,3 +23,7 @@ Here are the next features to be implemented:
 - **App Configuration/User Storage**: Set up a system for app configurations and user data storage.
 - **Efficient Game Asset Management**: Add functionality to handle game assets efficiently.
 - **Prepared UI Controls**: Create reusable and styled UI controls, such as buttons.
+
+
+## Future plans
+In the future i will split this project into different parts. A widget library will be a major part.
